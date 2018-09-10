@@ -1,0 +1,53 @@
+{ 
+  "serviceGroups": [
+    {
+      "name": "ingress",
+      "services": [
+        {
+          "name": "clientDeployService",
+          "host": "browser||url",
+          "port": "port",
+          "messages" : {
+            "dispatch": [
+              {
+                "name": "existingMessageName",
+                "to": "existingServiceName"
+              }
+            ],
+            "listen": [
+              "existingMessageName"
+            ]
+          },
+          "env" : {
+            "envVariableName": "string"
+          },
+          "path": "rootFolderPath",
+          "entryPoint" : "fileTarget"
+        }
+      ]
+    },
+    {
+      "name": "todos",
+      "deployment": "",
+      "services": [
+        {
+          "name": "todosService"
+        }
+      ],
+      "transport": {
+        "http": ""
+      }
+    },
+    {
+      "name": "browser",
+      "services": [
+        {
+          "name": "todosApp"
+        }
+      ],
+      "transport": {
+        "http": ""
+      }
+    }
+  ]
+}

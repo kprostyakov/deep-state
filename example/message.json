@@ -1,0 +1,33 @@
+{
+  "id": "a random id, retained on stack pop",
+  "name": "namespace.name",
+  "target": "service name",
+  "prev": [],
+  "cur": {
+    "param": "values will be validated"
+  },
+  "next": {
+    "name": "next in stack",
+    "target": "same or another service",
+    "data": {}, 
+    "next":[
+      {
+        "name": "messages in array are fanned out",
+        "target": "same or another service",
+        "data": {} 
+      },
+      {
+        "name": "name",
+        "target": "same or another service",
+        "data": {},
+        "next": {
+          "predicate function hash of parent output": {
+            "name":"", "target":"", "next": {} 
+          },
+          "another pattern hash": {},
+          "end - if we want to iterate instead of pattern matching": {"name":"name", "target":"etc etc", "depends": "upstream messages to be merged before passing to service"}
+        } 
+      }
+    ] 
+  }
+}

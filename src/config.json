@@ -1,0 +1,99 @@
+{ 
+  "translation": {
+    "core": {
+      "init": {},
+      "api.buildRequest": {
+        "type": "core.parseConfig",
+        "stack": {
+          "type": "core.buildTree"
+        }
+      },
+      "core.buildResult": {
+        "type": "api.buildResult"
+      }
+    },
+    "worker": {
+      "core.buildTree": [
+        {
+          "type": "worker.buildNode",
+          "label": "system",
+          "pending": ["gateway", "parser", "builder"],
+          "data": {
+            "script": [
+              {"action": "combine", "args": []},
+              {"action": "wrap",}
+            ]
+          }
+        },
+        "build": {
+          "args": {
+
+          },
+          "pending": {
+            "gateway":{
+              "args": {
+        
+              }
+            },
+            "cfgParser":{
+              "args": {
+        
+              }
+            },
+            "builder": {
+              "args": {
+                "basepath": "./build/src/builder/",
+                "parts": ["ipc/ipc.js", "builder.js"],
+                "artefact": "_builder.js"
+              }
+            },
+            "composer": {
+              "args": {
+        
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+
+  "serviceGroups": [
+    {
+      "name": "core",
+      "host": "localhost",
+      "port": "8000",
+      "build": {},
+      "env": {},
+      "services": [
+        {
+          "name": "gateway",
+          "messages" : {
+            "out": [
+              "api.buildRequest"
+            ],
+            "in": [
+              "api.buildResult"
+            ]
+          },
+          "env" : {},
+          "build": {
+            "deps": {
+            },
+            "path": "src/gateway",
+            "entryPoint" : "gateway.js"
+          }
+        },
+        {
+          "name": "cfgParser"
+        },
+        {
+          "name": "builder"
+        },
+        {
+          "name": "composer"
+        }
+      ]
+    }
+  ]
+}
