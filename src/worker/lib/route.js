@@ -1,4 +1,4 @@
-const attach = config => target => {
+const route = config => target => {
 
   const routes = []
 
@@ -18,6 +18,4 @@ const attach = config => target => {
   })
 }
 
-module.exports = {
-  attach
-}
+export default route

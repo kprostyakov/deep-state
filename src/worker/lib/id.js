@@ -11,8 +11,4 @@ const id = () => {
   return uniqueID
 }
 
-const attach = cfg => target => {
-  target.addEventListener(cfg.event.in, e => {
-    target.dispatchEvent(new CustomEvent(cfg.event.out, {detail: {id: id(), ...e.detail}}))
-  })
-}
+export default id 

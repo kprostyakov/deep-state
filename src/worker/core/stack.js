@@ -1,4 +1,4 @@
-const attach = cfg => target => {
+const initStack = rules => {
 
   const mergeFrame = (to, from) => {
     let data = ('data' in to)?{...to.data, ...from.result}:{...from.result}
@@ -31,13 +31,7 @@ const attach = cfg => target => {
     }
     return messages
   }
-  
-  target.on(cfg.event.in, e => {
-    pop(e).forEach(msg => target.emit(cfg.event.out, msg))
-  })
-
+  return pop(msg)
 }
 
-module.exports = {
-  attach
-}
+export default initStack

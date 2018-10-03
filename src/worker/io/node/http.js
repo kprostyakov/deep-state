@@ -1,6 +1,11 @@
-const attach = config => target => {
+import id from '../lib/id.js'
+import streams from '../lib/streams.js'
+
+const httpGate = extPort => events => {
 
   const http = require('http')
+  
+  const requests = {}
 
   const postRequest = (options, payload) => new Promise ((resolve, reject) => {
     let req = http.request({method: 'POST', ...options})
@@ -20,23 +25,30 @@ const attach = config => target => {
       }).on('end', () => {
         body = Buffer.concat(body).toString();
         const message = JSON.parse(body)
-        target.emit(config.event.in, message)
+        this.emit(events.in, message)
         res.end()
       });
     }
-    if (method == 'GET') target.emit(config.event.out, {
-      name: 'blob-requested',
-      context: res,
-      data: {
-        terms: url.split('/')
-      }
-    })
-  }).listen(config.port)
+    if (method == 'GET') {
+      const newId = id()
+      requests[newId] = res
+      this.emit(events.in, {
+        name: 'get-request',
+        id: newId,
+        data: {
+          terms: url.split('/')
+        }
+      })
+    }
+  }).listen(extPort)
 
-
-  target.on(config.event.out, (message) => {
-    if ('context' in message) message.data.pipe(message.context)
-    else {
+  this.on(events.out, (message) => {
+    if (message.id in requests) {
+      const storedRes = requests[message.id]
+      delete requests[message.id]
+      const resStream = streams(message.cur.type)(message.cur.source)
+      resStream.pipe(storedRes)
+    } else {
       const payload = JSON.stringify(message)
       postRequest({
         host: message.to.host,
@@ -44,12 +56,10 @@ const attach = config => target => {
         headers: {
           'Content-Type': 'application/json',
           'Content-Length': Buffer.byteLength(payload)
-        }, 
-      }, payload)
-    }
+      }, 
+    }, payload)
+  }
   })
 }
 
-module.exports = {
-  attach
-}
+export default httpGate
