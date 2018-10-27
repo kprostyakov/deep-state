@@ -2,68 +2,54 @@ const {createReadStream, createWriteStream} = require('fs')
 const {builderInput} = require('../valid.js')
 
 
-const mergeStreams = (sources, sink, onend) => {
-  
-  const dump = (s, cb) => {
-    s.pipe(sink, {end: false})
-    s.once('end', cb) 
-  }
-
-  let pos = 0
-  const iter = () => {
-    if (pos==sources.length) {
-      sink.emit('end')
-      onend.action(onend.ok)
-    }
-    else dump(sources[pos], iter)
-
-    pos++
-  }
-
+const fillTemplate = (from, to, cfg, cb) => {
+  const template = require(from)
+  const sink = createWriteStream(to)
+  sink.end(template(cfg))
+  sink.on('finish', cb)
 }
 
-const eventAPI = {
-  build: 'builder-task'
-}
-
-/*Payload in msg.data includes fields:
+/*Payload in msg.cur includes fields:
 target - result object {type: 'file', path: 'rel.path'}
 deps - pre-conditions
 action - what to do
 context - extra args needed by action
 */
+const builder = config => events => {
+  this.on(events.in, (msg => {
 
-messageAPI.on(eventAPI.build, (msg => {
+    let action, args = []
 
-  let action, args = []
+    const {valid, error} = builderInput(msg)
+    const onend = result => ({
+      action: messageAPI.send,
+      ok: {...msg, data: {...result}, target: }
+    })
 
-  const {valid, error} = builderInput(msg)
-  const onend = result => ({
-    action: messageAPI.send,
-    ok: {...msg, data: {...result}, target: }
-  })
+    const root = msg.cur
 
-  const root = msg.data
+    if (valid) {
+      switch(msg.cur.action){
+        case "template":
+        fillTemplate(root.context.basepath+dep))
+        const sink = createWriteStream(root.context.basepath+root.args.target)
+        args = [sources, sink, onend({result: root.args.target})]
+        break
 
-  if (valid) {
-    switch(root.action){
-      case "merge":
-      action = mergeStreams
-      const sources = root.deps.map(dep => createReadStream(root.context.basepath+dep))
-      const sink = createWriteStream(root.context.basepath+root.args.target)
-      args = [sources, sink, onend({result: root.args.target})]
-      break
-
-      case "copy":
-      break
-      case "exec":
-      break
+        case "webpack":
+        break
+        case "deploy":
+        break
+      }
+    } else {
+      action = this.emit
+      args = ['builder.error', {error}]
     }
-  } else {
-    action = messageAPI.send
-    args = ['builder.error', {error}]
-  }
 
-  action(...args)
 
-}))
+
+  }))
+  return ({
+    actions: ["template", "webpack", "deploy"]
+  })
+}

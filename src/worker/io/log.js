@@ -1,6 +1,11 @@
-set log(msg) {
-  if (this.nodeLog.length > this.cfg.log.length) {
-    this.nodeLog.shift()
-  }
-  this.nodeLog.push(msg.data)
+const log = length => {
+  lines = []
+  const handler = event =>
+  this.on(event, msg => {
+    if (lines.length > length) lines.shift()
+    lines.push(msg.data)
+  })
+  return handler
 }
+
+export default log
